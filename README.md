@@ -3,9 +3,10 @@
 ## Table of Contents
 * [Problem Statement](#problem-statement)
 * [Workflow Explanation](#workflow-explanation)
-* [Data Pipeline](#data-pipeline)
-* [Training Pipeline](#training-pipeline)
-* [Inference Pipeline](#inference-pipeline)
+* [Model Experimentation in mlflow](#model-experimentation-in-mlflow)
+* [Data Pipeline in Airflow](#data-pipeline-in-airflow)
+* [Training Pipeline in Airflow](#training-pipeline-in-airflow)
+* [Inference Pipeline in Airflow](#inference-pipeline-in-airflow)
 * [Acknowledgements](#acknowledgements)
 
 ## Problem Statement
@@ -25,6 +26,59 @@ Regarding model experimentation and pipeline automation, the following have been
 - mlflow were used to keep track of models' version and if a model coule go to the Staging, Production, or Archive levels.
 - airflow were used for automation of data, training, and inference pipelines.
 
+## Model Experimentation in mlflow
+The screenshots below demonstrate how the experiments were logged in mlflow, artifacts of the model, and a version of the model being promoted to Production level.
+
+<img src="/images/mlflow_all_experiments.png" width = 1000>  
+  
+<img src="/images/mlflow_best_model_artifacts.png" width = 1000>  
+  
+<img src="/images/mlflow_exp_artifact_LightGBM.png" width = 1000>  
+  
+<img src="/images/mlflow_LightGBM_production_stage.png" width = 1000>  
+  
+## Data Pipeline in Airflow
+The data pipeline consists of the following tasks/DAGs:
+- building databases (db) via sqlite3, so that all the tasks read data from db, and write their output to the db.
+- checking the schema of the raw data to ensure/avoid any data drift.
+- loading data from csv file into db.
+- mapping all the cities into few major categories.
+- mapping the digital platform, source and medium through which the lead has landed on the education platform, into few categoiries.
+- mapping all the dozens types of lead's interaction with the platform, all these were grouped into Assistance Interaction, Career Interaction, Payment Interaction, and Syllabus Interaction.
+- checking the schema of the final dataset to be suitable to be fed into training pipeline for ML models.
+  
+The pictures below, show the successful implementation of the data pipeline in airflow, and the relation of different DAGs in this pipeline.
+<img src="/images/airflow_execution_data_ppln.png" width = 1000>  
+  
+<img src="/images/airflow_graph_data_ppln.png" width = 1000>  
+
+In this stage, unit test functions have also been developed to ensure all the above functions produce the expected output results.
+  
+## Training Pipeline in Airflow
+The training pipeline consists of the following tasks/DAGs:
+- one hot encoding all the categorical variables.
+- training LightGBM model.
+  
+The pictures below, show the successful implementation of the training pipeline in airflow, and the relation of different DAGs in this pipeline.
+<img src="/images/airflow_execution_training_ppln.png" width = 1000>  
+  
+<img src="/images/airflow_graph_training_ppln.png" width = 1000>
+
+## Inference Pipeline in Airflow
+The inference pipeline consists of few of the DAGs/tasks in the data pipeline (since new data should first go though some cleaning/unifying process) and in inference specific DAGs/tasks as follows:
+- loading data from csv file into db.
+- mapping all the cities into few major categories.
+- mapping the digital platform, source and medium through which the lead has landed on the education platform, into few categoiries.
+- mapping all the dozens types of lead's interaction with the platform, all these were grouped into Assistance Interaction, Career Interaction, Payment Interaction, and Syllabus Interaction.
+- one hot encoding all the categorical variables.
+- checking the schema of the final dataset to be suitable to be fed into training pipeline for LightGBM model.
+- prediction on the new dataset.
+- calculation of the percentages of 1's and 0's in the prediction and writing to a text file.
+
+The pictures below, show the successful implementation of the training pipeline in airflow, and the relation of different DAGs in this pipeline.
+<img src="/images/airflow_execution_inference_ppln.png" width = 1000>  
+  
+<img src="/images/airflow_graph_inference_ppln.png" width = 1000>
 
 
 ## Acknowledgements
